@@ -17,8 +17,7 @@ const WEST = {
   direction: "West",
 };
 
-const keyboardMap = {
-};
+const keyboardMap = {};
 
 const getKey = (key) => {
 	if(keyboardMap[key])
@@ -50,6 +49,9 @@ class Player {
   }
   
   move(offsetX, offsetY) {
+  	if(sceneManager.getCollisionHeight(this.x, this.y) !=
+  		 sceneManager.getCollisionHeight(this.x + offsetX, this.y + offsetY))
+  		return
   	this.x += offsetX;
   	this.y += offsetY;
   	this.offsetX -= offsetX;
@@ -120,10 +122,7 @@ class SceneManager extends PIXI.Container {
 	constructor() {
   	super();
 	  this.scenes = [{
-	  	collisionGrid: [
-	  		[0b0000, 0b0000, 0b0000],
-	  		[0b0000, 0b0000, 0b0000],
-	  	],
+	  	startPoint: {x: 2, y: 2},
 	  	textureGrid: [
 	  		[0,0,0,0,0,0,0,0,0,0,0],
 	  		[0,0,0,0,0,0,0,0,0,0,0],
@@ -132,6 +131,15 @@ class SceneManager extends PIXI.Container {
 	  		[0,0,1,1,1,1,1,1,0,0,0],
 	  		[0,0,0,0,0,0,0,0,0,0,0],
 	  		[1,1,1,1,1,1,1,1,1,1,1],
+	  	],
+	  	collisionHeightmap: [
+	  		[1,1,1,1,1,1,1,1,1,1,1],
+	  		[1,1,1,1,1,1,1,1,1,1,1],
+	  		[1,1,1,1,4,4,4,4,1,1,1],
+	  		[1,1,1,1,1,1,1,1,1,1,1],
+	  		[1,1,2,2,2,2,2,2,1,1,1],
+	  		[1,1,1,1,1,1,1,1,1,1,1],
+	  		[0,0,0,0,0,0,0,0,0,0,0],
 	  	]
 	  }];
 	  this.currentScene = null;
@@ -148,6 +156,8 @@ class SceneManager extends PIXI.Container {
 		this.layer.removeChildren();
 		this.spriteMap = {};
 		this.sprites = [];
+		this.player.x = scene.startPoint.x;
+		this.player.y = scene.startPoint.y;
 		textures.push(PIXI.Texture.from('assets/grass.png'));
 		textures.push(PIXI.Texture.from('assets/grass_side.png'));
 		for(let i in scene.textureGrid) {
@@ -172,6 +182,16 @@ class SceneManager extends PIXI.Container {
 		this.layer.addChild(playerSprite);
 		this.sprites.push(playerSprite);
 		this.spriteMap["player"] = playerSprite;
+	}
+	
+	getCollisionHeight(x, y) {
+		if(x < 0 || y < 0)
+			return -1;
+		if(y >= this.currentScene.collisionHeightmap.length)
+			return -1;
+		if(x >= this.currentScene.collisionHeightmap[y].length)
+			return -1;
+		return this.currentScene.collisionHeightmap[y][x];
 	}
 	
 	resize(oldGridSize, newGridSize) {
@@ -231,8 +251,6 @@ function main() {
   
   APPLICATION_WIDTH = GRID_SIZE * SCREEN_GRID_WIDTH;
   APPLICATION_HEIGHT = GRID_SIZE * SCREEN_GRID_HEIGHT;
-  
-  console.log(document.body.clientWidth, document.body.clientHeight);
   
   
   app = new PIXI.Application({ width: APPLICATION_WIDTH, height: APPLICATION_HEIGHT });
