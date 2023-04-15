@@ -125,12 +125,12 @@ class SceneManager extends PIXI.Container {
 	  		[0b0000, 0b0000, 0b0000],
 	  	],
 	  	textureGrid: [
-	  		[1,0,0,0,0,0,0,0,0,0,1],
-	  		[1,0,0,0,0,0,1,0,0,0,1],
-	  		[1,0,1,0,0,0,1,1,0,0,1],
-	  		[1,0,1,0,0,0,0,1,0,0,1],
-	  		[1,0,1,1,1,1,1,1,0,0,1],
-	  		[1,0,0,0,0,0,0,0,0,0,1],
+	  		[0,0,0,0,0,0,0,0,0,0,0],
+	  		[0,0,0,0,0,0,0,0,0,0,0],
+	  		[0,0,0,0,1,1,1,1,0,0,0],
+	  		[0,0,0,0,0,0,0,0,0,0,0],
+	  		[0,0,1,1,1,1,1,1,0,0,0],
+	  		[0,0,0,0,0,0,0,0,0,0,0],
 	  		[1,1,1,1,1,1,1,1,1,1,1],
 	  	]
 	  }];
@@ -148,8 +148,8 @@ class SceneManager extends PIXI.Container {
 		this.layer.removeChildren();
 		this.spriteMap = {};
 		this.sprites = [];
-		textures.push(PIXI.Texture.from('assets/Grass.jpg'));
-		textures.push(PIXI.Texture.from('assets/Dirt.jpg'));
+		textures.push(PIXI.Texture.from('assets/grass.png'));
+		textures.push(PIXI.Texture.from('assets/grass_side.png'));
 		for(let i in scene.textureGrid) {
 			const gridRow = scene.textureGrid[i];
 			for(let j in gridRow) {
