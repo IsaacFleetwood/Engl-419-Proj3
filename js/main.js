@@ -45,7 +45,7 @@ class Player {
     this.offsetX = 0;
     this.offsetY = 0;
     this.currentDirection = SOUTH;
-    this.playerSpeed = 0.5 * GAME_SPEED;
+    this.playerSpeed = 5 * GAME_SPEED;
   }
   
   move(offsetX, offsetY) {
@@ -75,7 +75,6 @@ class Player {
   
   updateMovement() {
   	if(this.offsetX != 0 || this.offsetY != 0) {
-  		console.log(this.x, this.y);
   		const delta = 1.0 / this.playerSpeed;
   		if(Math.abs(this.offsetX) > delta) {
   			//this.x += Math.sign(this.offsetX) * delta;
@@ -111,7 +110,7 @@ class Player {
   
 }
 
-const textures = [];
+const textures = {};
 
 let APPLICATION_WIDTH;
 let APPLICATION_HEIGHT;
@@ -124,23 +123,35 @@ class SceneManager extends PIXI.Container {
 	  this.scenes = [{
 	  	startPoint: {x: 2, y: 2},
 	  	textureGrid: [
-	  		[0,0,0,0,0,0,0,0,0,0,0],
-	  		[0,0,0,0,0,0,0,0,0,0,0],
-	  		[0,0,0,0,1,1,1,1,0,0,0],
-	  		[0,0,0,0,0,0,0,0,0,0,0],
-	  		[0,0,1,1,1,1,1,1,0,0,0],
-	  		[0,0,0,0,0,0,0,0,0,0,0],
-	  		[1,1,1,1,1,1,1,1,1,1,1],
+	  		[0,1,1,1,1,1,1,1,1,1,2],
+	  		[3,4,4,4,4,4,4,4,4,4,5],
+	  		[3,4,4,4,4,4,4,4,4,4,5],
+	  		[3,4,4,4,4,4,4,4,4,4,5],
+	  		[3,0,1,2,4,4,4,4,4,4,5],
+	  		[3,6,7,8,4,4,4,4,4,4,5],
+	  		[3,9,10,11,4,4,4,4,4,4,5],
+	  		[3,4,4,4,4,4,4,4,4,4,5],
+	  		[3,4,4,4,4,4,4,4,4,4,5],
+	  		[3,4,4,4,4,4,4,4,4,4,5],
+	  		[6,7,7,7,7,7,7,7,7,7,8],
 	  	],
 	  	collisionHeightmap: [
-	  		[1,1,1,1,1,1,1,1,1,1,1],
-	  		[1,1,1,1,1,1,1,1,1,1,1],
-	  		[1,1,1,1,4,4,4,4,1,1,1],
-	  		[1,1,1,1,1,1,1,1,1,1,1],
-	  		[1,1,2,2,2,2,2,2,1,1,1],
-	  		[1,1,1,1,1,1,1,1,1,1,1],
 	  		[0,0,0,0,0,0,0,0,0,0,0],
-	  	]
+	  		[0,0,0,0,0,0,0,0,0,0,0],
+	  		[0,0,0,0,0,0,0,0,0,0,0],
+	  		[0,0,0,0,0,0,0,0,0,0,0],
+	  		[0,1,1,1,0,0,0,0,0,0,0],
+	  		[0,1,1,1,0,0,0,0,0,0,0],
+	  		[0,1,1,1,0,0,0,0,0,0,0],
+				[0,0,0,0,0,0,0,0,0,0,0],
+	  		[0,0,0,0,0,0,0,0,0,0,0],
+	  		[0,0,0,0,0,0,0,0,0,0,0],
+	  	],
+	  	spriteGrid: [
+	  		{x: 5, y: 1, id: "tree"},
+	  		{x: 8, y: 1, id: "tree"},
+	  		{x: 2, y: 5, id: "tree"},
+	  	],
 	  }];
 	  this.currentScene = null;
 	  this.layer = new PIXI.Container();
@@ -158,8 +169,14 @@ class SceneManager extends PIXI.Container {
 		this.sprites = [];
 		this.player.x = scene.startPoint.x;
 		this.player.y = scene.startPoint.y;
-		textures.push(PIXI.Texture.from('assets/grass.png'));
-		textures.push(PIXI.Texture.from('assets/grass_side.png'));
+		//texturesPIXI.Texture.from('assets/grass.png'));
+		//textures.push(PIXI.Texture.from('assets/grass_side.png'));
+		for(var i = 0; i < 3; i++) {
+			for(var j = 0; j < 4; j++) {
+						textures[i + j * 3] = PIXI.Texture.from('assets/3x3_grass-'+i+'-'+j+'.png');
+			}
+		}
+		textures["tree"] = PIXI.Texture.from("assets/tree.png");
 		for(let i in scene.textureGrid) {
 			const gridRow = scene.textureGrid[i];
 			for(let j in gridRow) {
@@ -182,6 +199,16 @@ class SceneManager extends PIXI.Container {
 		this.layer.addChild(playerSprite);
 		this.sprites.push(playerSprite);
 		this.spriteMap["player"] = playerSprite;
+		for(var obj of scene.spriteGrid) {
+			const texture = textures[obj.id];
+			const sprite = new PIXI.Sprite(texture);
+			sprite.width = 3 * GRID_SIZE;
+			sprite.height = 5 * GRID_SIZE;
+			sprite.x = (obj.x + 0.5) * GRID_SIZE - sprite.width / 2;
+			sprite.y = (obj.y + 1) * GRID_SIZE - sprite.height;
+			this.sprites.push(sprite);
+			this.layer.addChild(sprite);
+		}
 	}
 	
 	getCollisionHeight(x, y) {
@@ -216,30 +243,38 @@ class SceneManager extends PIXI.Container {
 
 }
 
-const keyboardUpdateArr = [];
+const pressKeyboardArr = [];
+const releaseKeyboardArr = [];
 
 function startUpdateKeyboard() {
-	for(let key in keyboardMap) {
-		const obj = keyboardMap[key];
-		if(obj.press && !obj.held) {
-			obj.held = true;
-			keyboardUpdateArr.push(key);
-		}
-		if(!obj.press && obj.held) {
-			obj.held = false;
-			keyboardUpdateArr.push(key);
-		}
+	while(pressKeyboardArr.length > 0) {
+		const key = pressKeyboardArr.pop();
+		if(!keyboardMap[key])
+			keyboardMap[key] = {
+				press: true,
+				held: false,
+				released: false,
+			};
+		keyboardMap[key].press = true;
+		keyboardMap[key].held = true;
+	}
+	while(releaseKeyboardArr.length > 0) {
+		const key = releaseKeyboardArr.pop();
+		if(!keyboardMap[key])
+			keyboardMap[key] = {
+				press: false,
+				held: false,
+				released: true,
+			};
+		keyboardMap[key].released = true;
+		keyboardMap[key].held = false;
 	}
 }
 
 function finishUpdateKeyboard() {
-	for(let key of keyboardUpdateArr) {
-		if(keyboardMap[key].held) {
-			keyboardMap[key].press = false;
-		} else {
-			keyboardMap[key].released = false;
-		}
-		
+	for(let key in keyboardMap) {
+		keyboardMap[key].press = false;
+		keyboardMap[key].released = false;
 	}
 }
 
@@ -287,23 +322,11 @@ function main() {
 window.addEventListener('load', main);
 
 window.addEventListener('keydown', (e) => {
-	if(!keyboardMap[e.key])
-		keyboardMap[e.key] = {
-			press: true,
-			held: false,
-			released: false
-		};
-	keyboardMap[e.key].press = true;
+	pressKeyboardArr.push(e.key);
 });
 
 window.addEventListener('keyup', (e) => {
-	if(!keyboardMap[e.key])
-		keyboardMap[e.key] = {
-			press: false,
-			held: false,
-			released: false
-		};
-	keyboardMap[e.key].press = false;
+	releaseKeyboardArr.push(e.key);
 });
 
 window.addEventListener('resize', (e) => {
