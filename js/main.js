@@ -16,6 +16,10 @@ const WEST = {
 	id: 3,
   direction: "West",
 };
+const SITTING = {
+	id: 4,
+  direction: "NONE",
+};
 
 const keyboardMap = {};
 
@@ -44,8 +48,19 @@ class Player {
     this.y = 0;
     this.offsetX = 0;
     this.offsetY = 0;
-    this.currentDirection = SOUTH;
-    this.playerSpeed = 5 * GAME_SPEED;
+    this.currentDirection = SITTING;
+    this.playerSpeed = 0.5 * GAME_SPEED;
+    
+    this.idleTime = 0;
+    
+    this.textures = [
+    	PIXI.Texture.from("assets/fox-back.png"),
+    	PIXI.Texture.from("assets/fox-side.png"),
+    	PIXI.Texture.from("assets/fox-front.png"),
+    	PIXI.Texture.from("assets/fox-side-2.png"),
+    	PIXI.Texture.from("assets/fox-sit.png")
+    ];
+    
   }
   
   move(offsetX, offsetY) {
@@ -59,6 +74,8 @@ class Player {
   }
   
   moveDirection(direction) {
+  	this.idleTime = 0;
+  	this.currentDirection = direction;
     if(direction == SOUTH) {
       this.move(0, 1);
     }
@@ -101,6 +118,10 @@ class Player {
     	this.moveDirection(WEST);
     } else if(getKey("d").held) {
     	this.moveDirection(EAST);
+    } else {
+    	this.idleTime += 1;
+    	if(this.idleTime >= GAME_SPEED * 5)
+    		this.currentDirection = SITTING;
     }
   }
   
@@ -112,6 +133,7 @@ class Player {
 
 const textures = {};
 
+let style;
 let APPLICATION_WIDTH;
 let APPLICATION_HEIGHT;
 
@@ -121,37 +143,55 @@ class SceneManager extends PIXI.Container {
 	constructor() {
   	super();
 	  this.scenes = [{
-	  	startPoint: {x: 2, y: 2},
+	  	startPoint: {x: 7, y: 6},
 	  	textureGrid: [
-	  		[0,1,1,1,1,1,1,1,1,1,2],
-	  		[3,4,4,4,4,4,4,4,4,4,5],
-	  		[3,4,4,4,4,4,4,4,4,4,5],
-	  		[3,4,4,4,4,4,4,4,4,4,5],
-	  		[3,0,1,2,4,4,4,4,4,4,5],
-	  		[3,6,7,8,4,4,4,4,4,4,5],
-	  		[3,9,10,11,4,4,4,4,4,4,5],
-	  		[3,4,4,4,4,4,4,4,4,4,5],
-	  		[3,4,4,4,4,4,4,4,4,4,5],
-	  		[3,4,4,4,4,4,4,4,4,4,5],
-	  		[6,7,7,7,7,7,7,7,7,7,8],
+	  		[4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4],
+	  		[4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4],
+	  		[4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4],
+	  		[4,4,4,4,4,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,4,4,4,4,4],
+	  		[4,4,4,4,4,3,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,5,4,4,4,4,4],
+	  		[4,4,4,4,4,3,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,5,4,4,4,4,4],
+	  		[4,4,4,4,4,3,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,5,4,4,4,4,4],
+	  		[4,4,4,4,4,3,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,5,4,4,4,4,4],
+	  		[4,4,4,4,4,3,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,5,4,4,4,4,4],
+	  		[4,4,4,4,4,6,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,8,4,4,4,4,4],
+	  		[4,4,4,4,4,9,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,11,4,4,4,4,4],
+	  		[4,4,4,4,4,9,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,11,4,4,4,4,4],
+	  		[4,4,4,4,4,9,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,11,4,4,4,4,4],
 	  	],
 	  	collisionHeightmap: [
-	  		[0,0,0,0,0,0,0,0,0,0,0],
-	  		[0,0,0,0,0,0,0,0,0,0,0],
-	  		[0,0,0,0,0,0,0,0,0,0,0],
-	  		[0,0,0,0,0,0,0,0,0,0,0],
-	  		[0,1,1,1,0,0,0,0,0,0,0],
-	  		[0,1,1,1,0,0,0,0,0,0,0],
-	  		[0,1,1,1,0,0,0,0,0,0,0],
-				[0,0,0,0,0,0,0,0,0,0,0],
-	  		[0,0,0,0,0,0,0,0,0,0,0],
-	  		[0,0,0,0,0,0,0,0,0,0,0],
+	  		[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+	  		[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+	  		[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+	  		[1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1],
+	  		[1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1],
+	  		[1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1],
+	  		[1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,1,1,1,1,1],
+	  		[1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,1,1,1,1,1],
+	  		[1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1],
+	  		[1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1],
+	  		[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+	  		[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+	  		[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
 	  	],
 	  	spriteGrid: [
-	  		{x: 5, y: 1, id: "tree"},
-	  		{x: 8, y: 1, id: "tree"},
-	  		{x: 2, y: 5, id: "tree"},
+	  		{x: 6, y: 2, id: "tree"},
+	  		{x: 10, y: 1, id: "tree"},
+	  		{x: 12, y: 2, id: "tree"},
+	  		{x: 17, y: 1, id: "tree"},
+	  		{x: 15, y: 2, id: "tree"},
+	  		{x: 20, y: 2, id: "tree"},
+	  		{x: 3, y: 5, id: "tree"},
+	  		{x: 2, y: 9, id: "tree"},
+	  		{x: 1, y: 13, id: "tree"},
+	  		{x: 3, y: 14, id: "tree"},
+	  		
+	  		{x: 17, y: 7, id: "tree"},
+	  		//{x: 2, y: 5, id: "tree"},
 	  	],
+	  	interactions: [
+	  		{x: 16, y: 6, width: 3, height: 2, text: "(todo, text/interaction example) A lone tree standing in the middle of nowhere."},
+	  	]
 	  }];
 	  this.currentScene = null;
 	  this.layer = new PIXI.Container();
@@ -191,11 +231,9 @@ class SceneManager extends PIXI.Container {
 				this.layer.addChild(sprite);
 			}
 		}
-		const playerSprite = new PIXI.Sprite(textures[1]);
-		playerSprite.width = GRID_SIZE * 3/4;
-		playerSprite.height = GRID_SIZE * 3/4;
-		playerSprite.x = -GRID_SIZE/2;
-		playerSprite.y = -GRID_SIZE/2;
+		const playerSprite = new PIXI.Sprite(this.player.textures[this.player.currentDirection.id]);
+		playerSprite.width = GRID_SIZE;
+		playerSprite.height = GRID_SIZE;
 		this.layer.addChild(playerSprite);
 		this.sprites.push(playerSprite);
 		this.spriteMap["player"] = playerSprite;
@@ -236,7 +274,41 @@ class SceneManager extends PIXI.Container {
 	}
 	
 	tick() {
-		this.player.tick();
+		if(getKey("Enter").press) {
+			if(this.spriteMap["text"]) {
+				this.removeChild(this.spriteMap["text"]);
+				this.spriteMap["text"] = null;
+			} else {
+				let dX = 0;
+				let dY = 0;
+				if(this.player.currentDirection == EAST) {
+					dX = 1;
+					dY = 0;
+				} else if(this.player.currentDirection == NORTH) { dX = 0; dY = 1; }
+				else if(this.player.currentDirection == SOUTH) { dX = 0; dY = -1; }
+				else if(this.player.currentDirection == WEST) { dX = -1; dY = 0; }
+				
+				const x = this.player.x + dX;
+				const y = this.player.y + dY;
+				for(let interaction of this.currentScene.interactions) {
+					if(!(x >= interaction.x && x <= interaction.x + interaction.width))
+						continue;
+					if(!(y >= interaction.y && y <= interaction.y + interaction.height))
+						continue;
+					var text = new PIXI.Text(interaction.text, style);
+					
+					text.x = 100;
+					text.y = 100;
+					this.addChild(text);
+					this.spriteMap["text"] = text;
+					this.textLife = 0;
+				}
+			}
+		}
+		if(!this.spriteMap["text"]) {
+			this.player.tick();
+		}
+		this.spriteMap["player"].texture = this.player.textures[this.player.currentDirection.id];
 		this.spriteMap["player"].x = (this.player.x + this.player.offsetX) * GRID_SIZE;
 		this.spriteMap["player"].y = (this.player.y + this.player.offsetY) * GRID_SIZE;
 	}
@@ -287,16 +359,39 @@ function main() {
   APPLICATION_WIDTH = GRID_SIZE * SCREEN_GRID_WIDTH;
   APPLICATION_HEIGHT = GRID_SIZE * SCREEN_GRID_HEIGHT;
   
+  style = new PIXI.TextStyle({
+    fontFamily: 'Arial',
+    fontSize: 36,
+    fontStyle: 'italic',
+    fontWeight: 'bold',
+    fill: '#ffffff',
+    stroke: '#4a1850',
+    strokeThickness: 5,
+    dropShadow: false,
+    wordWrap: true,
+    wordWrapWidth: APPLICATION_WIDTH / 2,
+    lineJoin: 'round',
+	});
+
   
   app = new PIXI.Application({ width: APPLICATION_WIDTH, height: APPLICATION_HEIGHT });
 
   document.body.appendChild(app.view);
+  
   
   sceneManager = new SceneManager();
   sceneManager.switchScene(0);
   
 	app.stage.addChild(sceneManager);
 	
+	// DEBUG
+	var text = new PIXI.Text("(Press Enter on the tree on your right for interaction example)", style);
+	
+	text.x = APPLICATION_WIDTH  * 1/4.0;
+	text.y = APPLICATION_HEIGHT * 7/8.0;
+	app.stage.addChild(text);
+
+
 	let currentTime = 0;
 	let lastTickTime = 0;
 	
@@ -304,14 +399,15 @@ function main() {
 	
   app.ticker.add((delta) => {
   	startUpdateKeyboard();
-  	currentTime += delta;
+  	currentTime += delta / 60.0;
   	let loopAmt = 0;
   	while(currentTime >= lastTickTime + TIME_PER_TICK) {
   		sceneManager.tick();
   		lastTickTime = lastTickTime + TIME_PER_TICK;
   		loopAmt++;
-  		if(loopAmt > 10)
+  		if(loopAmt > 10) {
   			break;
+			}
   	}
   	sceneManager.update();
   	finishUpdateKeyboard();
@@ -329,6 +425,7 @@ window.addEventListener('keyup', (e) => {
 	releaseKeyboardArr.push(e.key);
 });
 
+/*
 window.addEventListener('resize', (e) => {
   let oldGridSize = GRID_SIZE;
   let newGridSize = Math.min(document.body.clientWidth / SCREEN_GRID_WIDTH, document.body.clientHeight / SCREEN_GRID_HEIGHT);
@@ -342,7 +439,7 @@ window.addEventListener('resize', (e) => {
   GRID_SIZE = newGridSize;
   
 });
-
+*/
 
 
 
