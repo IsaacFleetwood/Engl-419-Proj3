@@ -421,6 +421,7 @@ class SceneManager extends PIXI.Container {
 	  	progress: 0,
 	  	enterRunnable: undefined,
 	  };
+	  scene.events = {};
 		this.player = new Player();
 		this.player.x = scene.game.player.startPoint.x;
 		this.player.y = scene.game.player.startPoint.y;
