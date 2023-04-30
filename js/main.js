@@ -1,5 +1,4 @@
 export var PIXI = window["PIXI"];
-console.log(PIXI);
 
 const NORTH = {
 	id: 0,
@@ -106,8 +105,18 @@ class Player {
   			//this.y += this.offsetY;
   			this.offsetY = 0;
   		}
+  		this.animationFrame += 1;
+  		const framePerAnim = this.playerSpeed / 4;
+			this.sprite.texture = textures["fox-" + this.currentDirection.name + "-a" + (Math.floor(this.animationFrame / framePerAnim) % 4)];
   		return;
     }
+    if(this.animationFrame != 0) {
+			this.animationFrame = 0;
+		}
+		if(this.animationFrame == 0) {
+			this.sprite.texture = textures["fox-" + this.currentDirection.name + "-a0"];
+		}
+		
     
     if(getKey("w").held || getKey("ArrowUp").held) {
     	this.moveDirection(NORTH);
@@ -160,6 +169,28 @@ class SceneManager extends PIXI.Container {
 	  		{x:-4, y:-3, id: "title", width: 9, height: 7, static: true},
 	  	]
 	  }, {
+	  	onLoad: () => {
+	  		this.drawText("Controls:\nUse WASD or the arrow keys\nto move around.\nPress Enter while facing objects\nto interact with them.\n\nPress Enter to continue.", 7, () => {
+	  			if(this.text.progress != this.text.text.length) {
+	  				this.text.progress = this.text.text.length - 1;
+	  			} else {
+	  				this.gotoScene(2);
+	  			}
+	  		});
+	  	},
+	  	game: {
+	  		player: {
+	  			enabled: false,
+	  			startPoint: {x: 0, y: 0}
+	  		},
+				interactions: [
+					{x: -1, y: -1, width: 3, height: 3, action: () => {
+						this.gotoScene(1);
+					}}
+				],
+	  	},
+	  	spriteGrid: [],
+	  }, {
 	  	game: {
 	  		player: {
 	  			enabled:true, 
@@ -172,10 +203,10 @@ class SceneManager extends PIXI.Container {
 					[4,4,4,4,4,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,4,4,4,4,4],
 					[4,4,4,4,4,3,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,5,4,4,4,4,4],
 					[4,4,4,4,4,3,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,5,4,4,4,4,4],
-					[4,4,4,4,4,3,4,4,4,4,4,4,4,4,4,4,4,0,1,2,4,5,4,4,4,4,4],
-					[4,4,4,4,4,3,4,4,4,4,4,4,4,4,4,4,4,3,4,5,4,5,4,4,4,4,4],
-					[4,4,4,4,4,3,4,4,4,4,4,4,4,4,4,4,4,6,7,8,4,5,4,4,4,4,4],
-					[4,4,4,4,4,6,7,7,7,7,7,7,7,7,7,7,7,9,10,11,7,8,4,4,4,4,4],
+					[4,4,4,4,4,3,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,5,4,4,4,4,4],
+					[4,4,4,4,4,3,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,5,4,4,4,4,4],
+					[4,4,4,4,4,3,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,5,4,4,4,4,4],
+					[4,4,4,4,4,6,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,8,4,4,4,4,4],
 					[4,4,4,4,4,9,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,11,4,4,4,4,4],
 					[4,4,4,4,4,9,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,11,4,4,4,4,4],
 					[4,4,4,4,4,9,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,11,4,4,4,4,4],
@@ -187,17 +218,16 @@ class SceneManager extends PIXI.Container {
 					[1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1],
 					[1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1],
 					[1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1],
-					[1,1,1,1,1,0,0,0,0,0,0,0,0,1,1,1,1,1,1,0,0,0,1,1,1,1,1],
-					[1,1,1,1,1,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,0,0,1,1,1,1,1],
-					[1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,1,1,1,1,1],
-					[1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,1,1,1,1,1],
+					[1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,1,1,1,1,1],
+					[1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,1,1,1,1,1],
+					[1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1],
+					[1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1],
 					[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
 					[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
 					[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
 				],
 				interactions: [
 					{x: 16, y: 6, width: 3, height: 2, text: "A lone tree standing in the middle of nowhere. Where could it be from?", textHeight: 2},
-					{x: 13, y: 6, width: 3, height: 2, text: "Hi", textHeight: 1},
 				]
 	  	},
 	  	spriteGrid: [
@@ -212,6 +242,9 @@ class SceneManager extends PIXI.Container {
 	  		{x: 1, y: 13, id: "tree"},
 	  		{x: 3, y: 14, id: "tree"},
 	  		
+	  		{x: 14, y: 4, id: "bush", width: 2, height: 2,},
+	  		{x: 10, y: 7, id: "tall-grass", width: 1, height: 1, below_player: true},
+	  		
 	  		{x: 17, y: 7, id: "tree"},
 	  	]
 	  }];
@@ -225,7 +258,12 @@ class SceneManager extends PIXI.Container {
 	  this.addChild(this.transitionMask);
 	  this.sprites = [];
 	  this.spriteMap = {};
-	  this.textProgress = 0;
+	  this.text = {
+	  	enabled: false,
+	  	text: "",
+	  	progress: 0,
+	  	enterRunnable: undefined,
+	  };
 	  this.currentInteraction = {};
 	  this.player = new Player();
 	}
@@ -235,8 +273,17 @@ class SceneManager extends PIXI.Container {
 		this.currentScene = scene;
 		this.sceneNumber = this.transitionScene;
 		this.layer.removeChildren();
+		this.removeChildren();
+		this.addChild(this.layer);
+	  this.addChild(this.transitionMask);
 		this.spriteMap = {};
 		this.sprites = [];
+	  this.text = {
+	  	enabled: false,
+	  	text: "",
+	  	progress: 0,
+	  	enterRunnable: undefined,
+	  };
 		this.player.x = scene.game.player.startPoint.x;
 		this.player.y = scene.game.player.startPoint.y;
 		for(let i in scene.game.textureGrid) {
@@ -253,13 +300,30 @@ class SceneManager extends PIXI.Container {
 				this.layer.addChild(sprite);
 			}
 		}
-		const playerSprite = new PIXI.Sprite(textures["fox-" + this.player.currentDirection.id + "-1"]);
-		playerSprite.width = GRID_SIZE;
-		playerSprite.height = GRID_SIZE;
-		this.layer.addChild(playerSprite);
-		this.sprites.push(playerSprite);
-		this.spriteMap["player"] = playerSprite;
 		for(var obj of scene.spriteGrid) {
+			if(!obj.below_player) continue;
+			const texture = textures[obj.id];
+			const sprite = new PIXI.Sprite(texture);
+			if(obj.width) 
+				sprite.width = obj.width * GRID_SIZE;
+			if(obj.height) 
+				sprite.height = obj.height * GRID_SIZE;
+			sprite.x = (obj.x + 0.5) * GRID_SIZE - sprite.width / 2;
+			sprite.y = (obj.y + 1) * GRID_SIZE - sprite.height;
+			this.sprites.push(sprite);
+			this.layer.addChild(sprite);
+		}
+		if(scene.game.player.enabled) {
+			const playerSprite = new PIXI.Sprite(textures["fox-" + this.player.currentDirection.name + "-a0"]);
+			this.player.sprite = playerSprite;
+			playerSprite.width = GRID_SIZE;
+			playerSprite.height = GRID_SIZE;
+			this.layer.addChild(playerSprite);
+			this.sprites.push(playerSprite);
+			this.spriteMap["player"] = playerSprite;
+		}
+		for(var obj of scene.spriteGrid) {
+			if(obj.below_player) continue;
 			const texture = textures[obj.id];
 			const sprite = new PIXI.Sprite(texture);
 			if(obj.width) 
@@ -280,11 +344,40 @@ class SceneManager extends PIXI.Container {
 			this.sprites.push(sprite);
 			this.layer.addChild(sprite);
 		}
+		if(scene.onLoad)
+			scene.onLoad();
 	}
 	
 	gotoScene(sceneNumber) {
 		this.transitionAlpha = 0;
 		this.transitionScene = sceneNumber;
+	}
+	
+	drawText(text, textHeight, enterRunnable) {
+			var textSprite = new PIXI.Text("", style);
+			this.spriteMap["text"] = textSprite;
+			
+			textSprite.x = GRID_SIZE/2;
+			textSprite.y = GRID_SIZE/2;
+			
+			let background = new PIXI.Graphics();
+			this.spriteMap["text-background"] = background;
+			background.alpha = 0.5;
+			background.beginFill(0x333344);
+			background.drawRect(GRID_SIZE / 4, GRID_SIZE/4, APPLICATION_WIDTH - GRID_SIZE / 2, FONT_HEIGHT * textHeight + GRID_SIZE / 2);
+			
+			this.addChild(this.spriteMap["text-background"]);
+			this.addChild(this.spriteMap["text"]);
+			
+			this.text = {
+				enabled: true,
+				text: text,
+				progress: 0,
+				enterRunnable: enterRunnable,
+				sprite: text,
+				spriteBackground: background,
+			};
+			
 	}
 	
 	getCollisionHeight(x, y) {
@@ -327,11 +420,11 @@ class SceneManager extends PIXI.Container {
 		if(this.transitionAlpha > 0) {
 			this.transitionAlpha -= 0.05;
 		}
-		
 	
-		if(this.spriteMap["text"]) {
-				if(this.textProgress < this.currentInteraction.textHeight) {
-					this.textProgress += 0.03;
+		if(this.text.enabled) {
+				if(this.text.progress < this.text.text.length) {
+					this.text.progress += 1;
+					/*
 					let graphics = this.spriteMap["mask"];//this.spriteMap["text"].mask;
 					graphics.beginFill(0xffffff);
 					for(let i = 0; i < this.textProgress; i++) {
@@ -342,14 +435,27 @@ class SceneManager extends PIXI.Container {
 							width = GRID_SIZE * (SCREEN_GRID_WIDTH - 1) * (this.textProgress % 1);
 						graphics.drawRect(GRID_SIZE/2, GRID_SIZE / 2 + i * FONT_HEIGHT, width, FONT_HEIGHT);
 					}
+					*/
+					this.removeChild(this.spriteMap["text"]);
+					var text = new PIXI.Text(this.text.text.substring(0,this.text.progress), style);
+					text.x = GRID_SIZE/2;
+					text.y = GRID_SIZE/2;
+
+					this.spriteMap["text"] = text;					
+					this.addChild(text);
 				}
 		}	
 		if(getKey("Enter").press) {
-			if(this.spriteMap["text"]) {
-				this.removeChild(this.spriteMap["text"]);
-				this.removeChild(this.spriteMap["text-background"]);
-				//this.removeChild(this.spriteMap["mask"]);
-				this.spriteMap["text"] = null;
+			if(this.text.enabled) {
+				if(this.text.enterRunnable) {
+					this.text.enterRunnable();
+				} else {
+					this.text.enabled = false;
+					this.removeChild(this.spriteMap["text"]);
+					this.removeChild(this.spriteMap["text-background"]);
+					this.spriteMap["text"] = undefined;
+					this.spriteMap["text-background"] = undefined;
+				}
 			} else {
 				let dX = 0;
 				let dY = 0;
@@ -369,6 +475,11 @@ class SceneManager extends PIXI.Container {
 						interaction.action();
 						continue;
 					}
+					
+					this.drawText(interaction.text, interaction.textHeight);
+					
+					/*
+					
 					var text = new PIXI.Text(interaction.text, style);
 					
 					text.x = GRID_SIZE/2;
@@ -387,15 +498,18 @@ class SceneManager extends PIXI.Container {
 					
 					this.addChild(this.spriteMap["text-background"]);
 					this.addChild(this.spriteMap["text"]);
+					*/
 				}
 			}
 		}
 		if(!this.spriteMap["text"] && this.currentScene.game.player.enabled) {
 			this.player.tick();
 		}
-		this.spriteMap["player"].texture = textures["fox-" + this.player.currentDirection.name + "-1"];
-		this.spriteMap["player"].x = (this.player.x + this.player.offsetX) * GRID_SIZE;
-		this.spriteMap["player"].y = (this.player.y + this.player.offsetY) * GRID_SIZE;
+		//this.spriteMap["player"].texture = textures["fox-" + this.player.currentDirection.name + "-a0"];
+		if(this.currentScene.game.player.enabled) {
+			this.spriteMap["player"].x = (this.player.x + this.player.offsetX) * GRID_SIZE;
+			this.spriteMap["player"].y = (this.player.y + this.player.offsetY) * GRID_SIZE;
+		}
 	}
 
 }
@@ -438,7 +552,7 @@ function finishUpdateKeyboard() {
 function main() {
   
   GRID_SIZE = Math.min(document.body.clientWidth / SCREEN_GRID_WIDTH, document.body.clientHeight / SCREEN_GRID_HEIGHT);
-  FONT_HEIGHT = GRID_SIZE / 3
+  FONT_HEIGHT = GRID_SIZE * 0.3
   
   APPLICATION_WIDTH = GRID_SIZE * SCREEN_GRID_WIDTH;
   APPLICATION_HEIGHT = GRID_SIZE * SCREEN_GRID_HEIGHT;
@@ -515,11 +629,30 @@ async function start() {
 		}
 	}
 	loadResource("tree", "assets/tree.png");
-	loadResource("fox-back-1", "assets/fox-back-a0.png");
-	loadResource("fox-side-1-1", "assets/fox-side-a0.png");
-	loadResource("fox-side-2-1", "assets/fox-side-2-a0.png");
-	loadResource("fox-front-1", "assets/fox-front-a0.png");
-	loadResource("fox-sit-1", "assets/fox-sit.png");
+	loadResource("bush", "assets/bush.png");
+	loadResource("tall-grass", "assets/tall_grass.png");
+	
+	loadResource("fox-back-a0", "assets/fox-back-a0.png");
+	loadResource("fox-side-1-a0", "assets/fox-side-a0.png");
+	loadResource("fox-side-2-a0", "assets/fox-side-2-a0.png");
+	loadResource("fox-front-a0", "assets/fox-front-a0.png");
+
+	loadResource("fox-back-a1", "assets/fox-back-a1.png");
+	loadResource("fox-side-1-a1", "assets/fox-side-a1.png");
+	loadResource("fox-side-2-a1", "assets/fox-side-2-a1.png");
+	loadResource("fox-front-a1", "assets/fox-front-a1.png");
+
+	loadResource("fox-back-a2", "assets/fox-back-a2.png");
+	loadResource("fox-side-1-a2", "assets/fox-side-a2.png");
+	loadResource("fox-side-2-a2", "assets/fox-side-2-a2.png");
+	loadResource("fox-front-a2", "assets/fox-front-a2.png");
+
+	loadResource("fox-back-a3", "assets/fox-back-a3.png");
+	loadResource("fox-side-1-a3", "assets/fox-side-a3.png");
+	loadResource("fox-side-2-a3", "assets/fox-side-2-a3.png");
+	loadResource("fox-front-a3", "assets/fox-front-a3.png");
+	
+	loadResource("fox-sit-a0", "assets/fox-sit.png");
 	
 	loadResource("title", "assets/title.png");
   await Promise.all(promiseList);
@@ -529,7 +662,6 @@ async function start() {
 window.addEventListener('load', start);
 
 window.addEventListener('keydown', (e) => {
-	console.log(e.key);
 	pressKeyboardArr.push(e.key);
 });
 
