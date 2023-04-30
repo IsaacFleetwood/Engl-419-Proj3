@@ -148,6 +148,13 @@ let APPLICATION_HEIGHT;
 let FONT_HEIGHT;
 let style;
 
+function map(val, min, max, newMin, newMax) {
+	let newVal = (val - min) / (max - min) * (newMax - newMin) + newMin;
+	if(newVal < newMin) return newMin;
+	if(newVal > newMax) return newMax;
+	return newVal;
+}
+
 class SceneManager extends PIXI.Container {
 
 	constructor() {
@@ -167,10 +174,10 @@ class SceneManager extends PIXI.Container {
 	  	},
 	  	spriteGrid: [
 	  		{x:-4, y:-3, id: "title", width: 9, height: 7, static: true},
-	  	]
+	  	],
 	  }, {
 	  	onLoad: () => {
-	  		this.drawText("Controls:\nUse WASD or the arrow keys\nto move around.\nPress Enter while facing objects\nto interact with them.\n\nPress Enter to continue.", 7, () => {
+	  		this.drawText("Controls:\nUse WASD or the arrow keys\nto move around.\nPress Enter while facing objects\nto interact with them and to exit dialogue.\n\nPress Enter to continue.", 7, () => {
 	  			if(this.text.progress != this.text.text.length) {
 	  				this.text.progress = this.text.text.length - 1;
 	  			} else {
@@ -191,66 +198,191 @@ class SceneManager extends PIXI.Container {
 	  	},
 	  	spriteGrid: [],
 	  }, {
-	  	game: {
+	  	onLoad: () => {
+	  		this.drawText("You wake up to the sounds of crackling around you. After opening your eyes, you look around.", 2);
+  		},
+  		game: {
 	  		player: {
 	  			enabled:true, 
 	  			startPoint: {x: 7, y: 6}
 	  		},
-				textureGrid: [
-					[4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4],
-					[4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4],
-					[4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4],
-					[4,4,4,4,4,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,4,4,4,4,4],
-					[4,4,4,4,4,3,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,5,4,4,4,4,4],
-					[4,4,4,4,4,3,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,5,4,4,4,4,4],
-					[4,4,4,4,4,3,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,5,4,4,4,4,4],
-					[4,4,4,4,4,3,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,5,4,4,4,4,4],
-					[4,4,4,4,4,3,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,5,4,4,4,4,4],
-					[4,4,4,4,4,6,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,8,4,4,4,4,4],
-					[4,4,4,4,4,9,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,11,4,4,4,4,4],
-					[4,4,4,4,4,9,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,11,4,4,4,4,4],
-					[4,4,4,4,4,9,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,11,4,4,4,4,4],
-				],
-				collisionHeightmap: [
-					[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-					[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-					[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-					[1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1],
-					[1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1],
-					[1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1],
-					[1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,1,1,1,1,1],
-					[1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,1,1,1,1,1],
-					[1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1],
-					[1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1],
-					[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-					[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-					[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-				],
+				textureGrid: [[4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,10,10,10,10,10,10,10,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,10,10,10,10,10,10,10,10,10,10,10,10,10,],
+[4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,0,1,1,1,1,1,2,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,10,10,10,10,10,10,10,10,10,10,10,10,10,],
+[4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,3,4,4,4,4,4,5,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,10,10,10,10,10,10,10,10,10,10,10,10,10,],
+[4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,3,4,4,4,4,4,5,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,10,10,10,10,10,10,10,10,10,10,10,10,10,],
+[4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,3,4,4,4,4,4,5,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,10,10,10,10,10,10,10,10,10,10,10,10,10,],
+[4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,9,6,7,7,8,10,11,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,0,1,1,1,1,2,4,4,4,4,4,4,4,4,4,4,4,4,4,10,4,4,4,4,4,4,10,10,10,10,10,10,],
+[4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,9,10,11,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,3,4,4,4,4,5,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,10,10,10,10,10,],
+[4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,6,7,7,7,7,11,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,],
+[4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,9,10,10,10,11,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,],
+[4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,],
+[4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,],
+[4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,0,2,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,10,10,10,10,10,],
+[4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,0,1,1,4,4,2,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,10,10,10,10,10,10,],
+[4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,3,4,4,4,4,5,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,10,10,10,10,10,10,10,10,10,10,10,10,],
+[4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,0,1,1,1,2,4,4,4,4,4,3,4,4,4,4,5,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,10,10,10,10,10,10,10,10,10,10,10,10,],
+[4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,3,4,4,4,5,4,4,4,4,4,3,4,4,4,4,5,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,10,10,10,10,10,10,10,10,10,10,10,10,],
+[4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,6,7,7,7,8,4,4,4,4,4,6,7,7,7,7,8,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,10,10,10,10,10,10,10,10,10,10,10,10,],
+[4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,9,10,10,10,11,4,4,4,4,4,9,10,10,10,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,10,10,10,10,10,4,10,10,4,4,4,4,],
+[4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,10,10,10,10,10,10,10,4,4,4,4,4,],
+[4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,10,10,10,10,10,10,10,4,4,4,4,4,],
+[4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,],
+[4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,],
+],
+				collisionHeightmap: [[1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,],
+[1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,],
+[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,],
+[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,],
+[1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,],
+[1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,1,1,1,1,1,1,],
+[1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,0,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,1,1,1,1,1,],
+[1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,],
+[1,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,],
+[1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0,0,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,],
+[1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,],
+[1,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,1,1,1,1,1,],
+[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,1,1,1,1,1,1,],
+[1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,],
+[1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,],
+[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,],
+[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,],
+[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,],
+[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,],
+[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,],
+[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,],
+[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,],
+],
 				interactions: [
 					{x: 16, y: 6, width: 3, height: 2, text: "A lone tree standing in the middle of nowhere. Where could it be from?", textHeight: 2},
 				]
 	  	},
-	  	spriteGrid: [
-	  		{x: 6, y: 2, id: "tree"},
-	  		{x: 10, y: 1, id: "tree"},
-	  		{x: 12, y: 2, id: "tree"},
-	  		{x: 17, y: 1, id: "tree"},
-	  		{x: 15, y: 2, id: "tree"},
-	  		{x: 20, y: 2, id: "tree"},
-	  		{x: 3, y: 5, id: "tree"},
-	  		{x: 2, y: 9, id: "tree"},
-	  		{x: 1, y: 13, id: "tree"},
-	  		{x: 3, y: 14, id: "tree"},
+	  	spriteGrid: (() => {
+	  		var sprites = [];
 	  		
-	  		{x: 14, y: 4, id: "bush", width: 2, height: 2,},
-	  		{x: 10, y: 7, id: "tall-grass", width: 1, height: 1, below_player: true},
+	  		let grid = [[0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,],
+[0,0,0,0,1,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,],
+[0,0,0,0,0,0,0,0,1,0,0,0,0,1,0,0,2,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,2,0,1,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,],
+[0,0,1,0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,],
+[0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,],
+[0,0,1,0,0,2,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,2,0,0,0,0,0,0,4,0,0,0,0,4,0,0,0,4,0,4,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,],
+[0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,],
+[0,2,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,5,0,0,5,0,0,0,0,0,0,0,0,5,0,0,0,0,0,0,0,0,],
+[0,0,0,1,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,2,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,0,0,0,0,0,0,0,0,0,0,],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,2,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,0,0,0,0,0,0,0,],
+[0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,],
+[0,0,0,0,0,1,0,0,0,1,0,0,3,0,0,0,0,0,2,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,],
+[0,0,0,0,0,0,0,2,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,2,0,0,1,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,],
+[0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,3,0,1,0,0,0,3,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,],
+[0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,],
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,],
+];
+				
+				for(let y = 0; y < grid.length; y++) {
+					for(let x = 0; x < grid[y].length; x++) {
+						switch(grid[y][x]) {
+							case 0:
+								break;
+							case 1:
+								sprites.push({x: x, y: y, ids: ["tree-fire-a0", "tree-fire-a1"], framerate: (Math.random()*0.5 + 1)*24, width:3, height: 6});
+								break;
+							case 2:
+								sprites.push({x: x, y: y, id: "tall-grass", width: 1, height: 1, below_player: true});
+								break;
+							case 3:
+								sprites.push({x: x, y: y, ids: ["bush-fire-a0", "bush-fire-a1"], framerate: (Math.random()*0.5 + 1)*24, width: 2, height: 2});
+								break;
+							case 4:
+								sprites.push({x: x, y: y, id: "tree", width: 3, height: 5});
+								break;
+							case 5:
+								sprites.push({x: x, y: y, id: "bush", width: 2, height: 2});
+								break;
+						}
+					}
+				}
 	  		
-	  		{x: 17, y: 7, id: "tree"},
-	  	]
-	  }];
+	  		return sprites;
+	  		
+	  	})(),
+	  	filter: (() => {
+	  		let filter = new PIXI.ColorMatrixFilter();
+	  		filter.tint(0xFF7755, false);
+	  		return filter;
+	  	})(),
+	  	interactionEvent: (x, y) => {
+	  		if(this.currentScene.game.collisionHeightmap[y][x] == 0)
+	  			return {valid: false};
+	  		if(this.currentScene.game.textureGrid[y][x] != 4) {
+  				return {valid: true, text: "The ground is too steep to climb up the edge.", textHeight: 2};
+  			}
+  			if(x < 30) {
+  				return {valid: true, text: "The burning trees of the forest won't let you pass because of the heat.", textHeight: 2};
+  			}
+  			return {valid: true, text: "The forest's thick bramble makes it hard to make your way through.", textHeight: 2};
+	  	},
+	  	events: {},
+	  	moveEvent: () => {
+	  		let green = map(this.player.x, 35, 40, 0x77, 0xFF);
+	  		let blue = map(this.player.x, 35, 40, 0x55, 0xFF);
+	  		this.currentScene.filter.tint(0xFF0000 | (green << 8) | blue, false, false);
+	  		
+	  		if(this.player.x > 10 && !this.currentScene.events["fire-flee"]) {
+	  			this.drawText("Terrified, you realize that your home, the forest in which you have spent your life, is burning down all around you. You begin running for your life.", 4);
+	  			this.currentScene.events["fire-flee"] = true;
+	  		}
+	  		if(this.player.x > 25 && !this.currentScene.events["questions"]) {
+	  			this.drawText("Many questions come to your mind. What could have caused this? Where did it come from and how far has it grown?", 4);
+	  			this.currentScene.events["questions"] = true;
+	  		}
+	  		if(this.player.x > 26 && !this.currentScene.events["running"]) {
+	  			this.drawText("But instead of pondering, you keep running.", 1);
+	  			this.currentScene.events["running"] = true;
+	  		}
+	  		if(this.player.x > 40 && !this.currentScene.events["leave-behind"]) {
+	  			this.drawText("As you leave behind the heat of the blaze, you feel an overwhelming sense of dread wash over you as you realize that your home, consumed by flames, will be gone.", 4);
+	  			this.currentScene.events["leave-behind"] = true;
+	  		}
+	  		if(this.player.x > 55 && !this.currentScene.events["bushes"]) {
+	  			this.drawText("Through the bushes you come across a clearing that marks the edge of the forest and the start of your search for answers and a new home.", 3);
+	  			this.currentScene.events["bushes"] = true;
+	  		}
+	  		if(this.player.x > 72) {
+	  			this.gotoScene(3);
+	  		}
+	  		
+	  	}
+	  }, {
+	  	onLoad: () => {
+	  		this.drawText("You made it out of the burning forest alive, but what comes next?\nThe question still lurks in the back of your mind, what happened to your home and what caused the fire to start in the first place?..\n To Be Continued..", 7, () => {
+	  			if(this.text.progress != this.text.text.length) {
+	  				this.text.progress = this.text.text.length - 1;
+	  			} else {
+	  				this.gotoScene(0);
+	  			}
+	  		});
+	  	},
+	  	game: {
+	  		player: {
+	  			enabled: false,
+	  			startPoint: {x: 0, y: 0}
+	  		},
+				interactions: [
+					{x: -1, y: -1, width: 3, height: 3, action: () => {
+						this.gotoScene(1);
+					}}
+				],
+	  	},
+	  	spriteGrid: [],
+	  },];
+	  this.animations = [];
 	  this.currentScene = null;
 	  this.layer = new PIXI.Container();
-	  this.layer.tint = 0xFF5555;
 	  this.addChild(this.layer);
 	  this.transitionMask = new PIXI.Graphics();
 	  this.transitionAlpha = 0;
@@ -273,6 +405,11 @@ class SceneManager extends PIXI.Container {
 		this.currentScene = scene;
 		this.sceneNumber = this.transitionScene;
 		this.layer.removeChildren();
+		if(scene.filter) {
+			this.layer.filters = [scene.filter];
+		} else {
+			this.layer.filters = [];
+		}
 		this.removeChildren();
 		this.addChild(this.layer);
 	  this.addChild(this.transitionMask);
@@ -284,6 +421,7 @@ class SceneManager extends PIXI.Container {
 	  	progress: 0,
 	  	enterRunnable: undefined,
 	  };
+		this.player = new Player();
 		this.player.x = scene.game.player.startPoint.x;
 		this.player.y = scene.game.player.startPoint.y;
 		for(let i in scene.game.textureGrid) {
@@ -324,6 +462,9 @@ class SceneManager extends PIXI.Container {
 		}
 		for(var obj of scene.spriteGrid) {
 			if(obj.below_player) continue;
+			if(obj.ids) {
+				obj.id = obj.ids[0];
+			}
 			const texture = textures[obj.id];
 			const sprite = new PIXI.Sprite(texture);
 			if(obj.width) 
@@ -343,6 +484,10 @@ class SceneManager extends PIXI.Container {
 			}
 			this.sprites.push(sprite);
 			this.layer.addChild(sprite);
+			
+			if(obj.ids) {
+				this.animations.push({sprite: sprite, ids: obj.ids, frame: 0, timer: obj.frameRate, framerate: obj.framerate});
+			}
 		}
 		if(scene.onLoad)
 			scene.onLoad();
@@ -408,7 +553,7 @@ class SceneManager extends PIXI.Container {
 	}
 	
 	tick() {
-		
+
 		if(this.transitionScene != this.sceneNumber) {
 			if(this.transitionAlpha < 1) {
 				this.transitionAlpha += 0.05;
@@ -421,9 +566,19 @@ class SceneManager extends PIXI.Container {
 			this.transitionAlpha -= 0.05;
 		}
 	
+		for(let animation of this.animations) {
+			if(animation.timer > 0) {
+				animation.timer -= 1;
+				continue;
+			}
+			animation.timer = animation.framerate;
+			animation.frame = (animation.frame + 1) % animation.ids.length;
+			animation.sprite.texture = textures[animation.ids[animation.frame]];
+		}
+	
 		if(this.text.enabled) {
 				if(this.text.progress < this.text.text.length) {
-					this.text.progress += 1;
+					this.text.progress += 0.5;
 					/*
 					let graphics = this.spriteMap["mask"];//this.spriteMap["text"].mask;
 					graphics.beginFill(0xffffff);
@@ -437,7 +592,7 @@ class SceneManager extends PIXI.Container {
 					}
 					*/
 					this.removeChild(this.spriteMap["text"]);
-					var text = new PIXI.Text(this.text.text.substring(0,this.text.progress), style);
+					var text = new PIXI.Text(this.text.text.substring(0,Math.floor(this.text.progress)), style);
 					text.x = GRID_SIZE/2;
 					text.y = GRID_SIZE/2;
 
@@ -466,6 +621,7 @@ class SceneManager extends PIXI.Container {
 				
 				const x = this.player.x + dX;
 				const y = this.player.y + dY;
+				let finished = false;
 				for(let interaction of this.currentScene.game.interactions) {
 					if(!(x >= interaction.x && x < interaction.x + interaction.width))
 						continue;
@@ -477,6 +633,7 @@ class SceneManager extends PIXI.Container {
 					}
 					
 					this.drawText(interaction.text, interaction.textHeight);
+					finished = true;
 					
 					/*
 					
@@ -500,13 +657,22 @@ class SceneManager extends PIXI.Container {
 					this.addChild(this.spriteMap["text"]);
 					*/
 				}
+				if(!finished && this.currentScene.interactionEvent) {
+					let res = this.currentScene.interactionEvent(x, y);
+					if(res.valid) {
+						this.drawText(res.text, res.textHeight);
+					}
+				}
 			}
-		}
-		if(!this.spriteMap["text"] && this.currentScene.game.player.enabled) {
-			this.player.tick();
 		}
 		//this.spriteMap["player"].texture = textures["fox-" + this.player.currentDirection.name + "-a0"];
 		if(this.currentScene.game.player.enabled) {
+			if(!this.spriteMap["text"]) {
+				this.player.tick();
+			}
+			if(this.currentScene.moveEvent) {
+				this.currentScene.moveEvent();
+			}
 			this.spriteMap["player"].x = (this.player.x + this.player.offsetX) * GRID_SIZE;
 			this.spriteMap["player"].y = (this.player.y + this.player.offsetY) * GRID_SIZE;
 		}
@@ -629,7 +795,11 @@ async function start() {
 		}
 	}
 	loadResource("tree", "assets/tree.png");
+	loadResource("tree-fire-a0", "assets/tree_fire.png");
+	loadResource("tree-fire-a1", "assets/tree_fire_a1.png");
 	loadResource("bush", "assets/bush.png");
+	loadResource("bush-fire-a0", "assets/bush-fire-a0.png");
+	loadResource("bush-fire-a1", "assets/bush-fire-a1.png");
 	loadResource("tall-grass", "assets/tall_grass.png");
 	
 	loadResource("fox-back-a0", "assets/fox-back-a0.png");
