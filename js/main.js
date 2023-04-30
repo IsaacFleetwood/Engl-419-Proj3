@@ -1,23 +1,29 @@
 export var PIXI = window["PIXI"];
+console.log(PIXI);
 
 const NORTH = {
 	id: 0,
+	name: "back",
   direction: "North",
 };
 const EAST = {
 	id: 1,
+	name: "side-1",
   direction: "East",
 };
 const SOUTH = {
 	id: 2,
+	name: "front",
   direction: "South",
 };
 const WEST = {
 	id: 3,
+	name: "side-2",
   direction: "West",
 };
 const SITTING = {
 	id: 4,
+	name: "sit",
   direction: "NONE",
 };
 
@@ -34,8 +40,8 @@ const getKey = (key) => {
 }
 
 const GAME_SPEED = 60;
-const SCREEN_GRID_WIDTH = 8;
-const SCREEN_GRID_HEIGHT = 6;
+const SCREEN_GRID_WIDTH = 9;
+const SCREEN_GRID_HEIGHT = 7;
 let GRID_SIZE;
 
 let sceneManager;
@@ -48,18 +54,11 @@ class Player {
     this.y = 0;
     this.offsetX = 0;
     this.offsetY = 0;
+    this.animationFrame = 0;
     this.currentDirection = SITTING;
     this.playerSpeed = 0.5 * GAME_SPEED;
     
     this.idleTime = 0;
-    
-    this.textures = [
-    	PIXI.Texture.from("assets/fox-back.png"),
-    	PIXI.Texture.from("assets/fox-side.png"),
-    	PIXI.Texture.from("assets/fox-front.png"),
-    	PIXI.Texture.from("assets/fox-side-2.png"),
-    	PIXI.Texture.from("assets/fox-sit.png")
-    ];
     
   }
   
@@ -110,13 +109,13 @@ class Player {
   		return;
     }
     
-    if(getKey("w").held) {
+    if(getKey("w").held || getKey("ArrowUp").held) {
     	this.moveDirection(NORTH);
-    } else if(getKey("s").held) {
+    } else if(getKey("s").held || getKey("ArrowDown").held) {
     	this.moveDirection(SOUTH);
-    } else if(getKey("a").held) {
+    } else if(getKey("a").held || getKey("ArrowLeft").held) {
     	this.moveDirection(WEST);
-    } else if(getKey("d").held) {
+    } else if(getKey("d").held || getKey("ArrowRight").held) {
     	this.moveDirection(EAST);
     } else {
     	this.idleTime += 1;
@@ -133,47 +132,74 @@ class Player {
 
 const textures = {};
 
-let style;
+let loader;
+let app;
 let APPLICATION_WIDTH;
 let APPLICATION_HEIGHT;
-
+let FONT_HEIGHT;
+let style;
 
 class SceneManager extends PIXI.Container {
 
 	constructor() {
   	super();
+  	this.sceneNumber = -1;
 	  this.scenes = [{
-	  	startPoint: {x: 7, y: 6},
-	  	textureGrid: [
-	  		[4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4],
-	  		[4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4],
-	  		[4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4],
-	  		[4,4,4,4,4,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,4,4,4,4,4],
-	  		[4,4,4,4,4,3,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,5,4,4,4,4,4],
-	  		[4,4,4,4,4,3,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,5,4,4,4,4,4],
-	  		[4,4,4,4,4,3,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,5,4,4,4,4,4],
-	  		[4,4,4,4,4,3,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,5,4,4,4,4,4],
-	  		[4,4,4,4,4,3,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,5,4,4,4,4,4],
-	  		[4,4,4,4,4,6,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,8,4,4,4,4,4],
-	  		[4,4,4,4,4,9,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,11,4,4,4,4,4],
-	  		[4,4,4,4,4,9,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,11,4,4,4,4,4],
-	  		[4,4,4,4,4,9,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,11,4,4,4,4,4],
-	  	],
-	  	collisionHeightmap: [
-	  		[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-	  		[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-	  		[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-	  		[1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1],
-	  		[1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1],
-	  		[1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1],
-	  		[1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,1,1,1,1,1],
-	  		[1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,1,1,1,1,1],
-	  		[1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1],
-	  		[1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1],
-	  		[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-	  		[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-	  		[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-	  	],
+	  	game: {
+	  		player: {
+	  			enabled: false,
+	  			startPoint: {x: 0, y: 0}
+	  		},
+				interactions: [
+					{x: -1, y: -1, width: 3, height: 3, action: () => {
+						this.gotoScene(1);
+					}}
+				],
+	  	},
+	  	spriteGrid: [
+	  		{x:-4, y:-3, id: "title", width: 9, height: 7, static: true},
+	  	]
+	  }, {
+	  	game: {
+	  		player: {
+	  			enabled:true, 
+	  			startPoint: {x: 7, y: 6}
+	  		},
+				textureGrid: [
+					[4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4],
+					[4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4],
+					[4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4],
+					[4,4,4,4,4,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,4,4,4,4,4],
+					[4,4,4,4,4,3,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,5,4,4,4,4,4],
+					[4,4,4,4,4,3,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,5,4,4,4,4,4],
+					[4,4,4,4,4,3,4,4,4,4,4,4,4,4,4,4,4,0,1,2,4,5,4,4,4,4,4],
+					[4,4,4,4,4,3,4,4,4,4,4,4,4,4,4,4,4,3,4,5,4,5,4,4,4,4,4],
+					[4,4,4,4,4,3,4,4,4,4,4,4,4,4,4,4,4,6,7,8,4,5,4,4,4,4,4],
+					[4,4,4,4,4,6,7,7,7,7,7,7,7,7,7,7,7,9,10,11,7,8,4,4,4,4,4],
+					[4,4,4,4,4,9,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,11,4,4,4,4,4],
+					[4,4,4,4,4,9,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,11,4,4,4,4,4],
+					[4,4,4,4,4,9,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,11,4,4,4,4,4],
+				],
+				collisionHeightmap: [
+					[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+					[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+					[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+					[1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1],
+					[1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1],
+					[1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1],
+					[1,1,1,1,1,0,0,0,0,0,0,0,0,1,1,1,1,1,1,0,0,0,1,1,1,1,1],
+					[1,1,1,1,1,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,0,0,1,1,1,1,1],
+					[1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,1,1,1,1,1],
+					[1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,1,1,1,1,1],
+					[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+					[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+					[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+				],
+				interactions: [
+					{x: 16, y: 6, width: 3, height: 2, text: "A lone tree standing in the middle of nowhere. Where could it be from?", textHeight: 2},
+					{x: 13, y: 6, width: 3, height: 2, text: "Hi", textHeight: 1},
+				]
+	  	},
 	  	spriteGrid: [
 	  		{x: 6, y: 2, id: "tree"},
 	  		{x: 10, y: 1, id: "tree"},
@@ -187,38 +213,34 @@ class SceneManager extends PIXI.Container {
 	  		{x: 3, y: 14, id: "tree"},
 	  		
 	  		{x: 17, y: 7, id: "tree"},
-	  		//{x: 2, y: 5, id: "tree"},
-	  	],
-	  	interactions: [
-	  		{x: 16, y: 6, width: 3, height: 2, text: "(todo, text/interaction example) A lone tree standing in the middle of nowhere."},
 	  	]
 	  }];
 	  this.currentScene = null;
 	  this.layer = new PIXI.Container();
+	  this.layer.tint = 0xFF5555;
 	  this.addChild(this.layer);
+	  this.transitionMask = new PIXI.Graphics();
+	  this.transitionAlpha = 0;
+	  this.transitionScene = 0;
+	  this.addChild(this.transitionMask);
 	  this.sprites = [];
 	  this.spriteMap = {};
+	  this.textProgress = 0;
+	  this.currentInteraction = {};
 	  this.player = new Player();
 	}
 	
-	switchScene(sceneNumber) {
-		const scene = this.scenes[sceneNumber];
+	switchScene() {
+		const scene = this.scenes[this.transitionScene];
 		this.currentScene = scene;
+		this.sceneNumber = this.transitionScene;
 		this.layer.removeChildren();
 		this.spriteMap = {};
 		this.sprites = [];
-		this.player.x = scene.startPoint.x;
-		this.player.y = scene.startPoint.y;
-		//texturesPIXI.Texture.from('assets/grass.png'));
-		//textures.push(PIXI.Texture.from('assets/grass_side.png'));
-		for(var i = 0; i < 3; i++) {
-			for(var j = 0; j < 4; j++) {
-						textures[i + j * 3] = PIXI.Texture.from('assets/3x3_grass-'+i+'-'+j+'.png');
-			}
-		}
-		textures["tree"] = PIXI.Texture.from("assets/tree.png");
-		for(let i in scene.textureGrid) {
-			const gridRow = scene.textureGrid[i];
+		this.player.x = scene.game.player.startPoint.x;
+		this.player.y = scene.game.player.startPoint.y;
+		for(let i in scene.game.textureGrid) {
+			const gridRow = scene.game.textureGrid[i];
 			for(let j in gridRow) {
 				const cell = gridRow[j];
 				const texture = textures[cell];
@@ -231,7 +253,7 @@ class SceneManager extends PIXI.Container {
 				this.layer.addChild(sprite);
 			}
 		}
-		const playerSprite = new PIXI.Sprite(this.player.textures[this.player.currentDirection.id]);
+		const playerSprite = new PIXI.Sprite(textures["fox-" + this.player.currentDirection.id + "-1"]);
 		playerSprite.width = GRID_SIZE;
 		playerSprite.height = GRID_SIZE;
 		this.layer.addChild(playerSprite);
@@ -240,23 +262,39 @@ class SceneManager extends PIXI.Container {
 		for(var obj of scene.spriteGrid) {
 			const texture = textures[obj.id];
 			const sprite = new PIXI.Sprite(texture);
-			sprite.width = 3 * GRID_SIZE;
-			sprite.height = 5 * GRID_SIZE;
-			sprite.x = (obj.x + 0.5) * GRID_SIZE - sprite.width / 2;
-			sprite.y = (obj.y + 1) * GRID_SIZE - sprite.height;
+			if(obj.width) 
+				sprite.width = obj.width * GRID_SIZE;
+			else 
+				sprite.width = 3 * GRID_SIZE;
+			if(obj.height) 
+				sprite.height = obj.height * GRID_SIZE;
+			else 
+				sprite.height = 5 * GRID_SIZE;
+			if(obj.static) {
+				sprite.x = (obj.x) * GRID_SIZE;
+				sprite.y = (obj.y) * GRID_SIZE;
+			} else {
+				sprite.x = (obj.x + 0.5) * GRID_SIZE - sprite.width / 2;
+				sprite.y = (obj.y + 1) * GRID_SIZE - sprite.height;
+			}
 			this.sprites.push(sprite);
 			this.layer.addChild(sprite);
 		}
 	}
 	
+	gotoScene(sceneNumber) {
+		this.transitionAlpha = 0;
+		this.transitionScene = sceneNumber;
+	}
+	
 	getCollisionHeight(x, y) {
 		if(x < 0 || y < 0)
 			return -1;
-		if(y >= this.currentScene.collisionHeightmap.length)
+		if(y >= this.currentScene.game.collisionHeightmap.length)
 			return -1;
-		if(x >= this.currentScene.collisionHeightmap[y].length)
+		if(x >= this.currentScene.game.collisionHeightmap[y].length)
 			return -1;
-		return this.currentScene.collisionHeightmap[y][x];
+		return this.currentScene.game.collisionHeightmap[y][x];
 	}
 	
 	resize(oldGridSize, newGridSize) {
@@ -271,44 +309,91 @@ class SceneManager extends PIXI.Container {
 	update() {
 		this.layer.position.x = -(this.player.x + this.player.offsetX) * GRID_SIZE + APPLICATION_WIDTH/2 - GRID_SIZE/2;
 		this.layer.position.y = -(this.player.y + this.player.offsetY) * GRID_SIZE + APPLICATION_HEIGHT/2 - GRID_SIZE/2;
+		this.transitionMask.clear();
+		this.transitionMask.beginFill(0x000000, this.transitionAlpha);
+		this.transitionMask.drawRect(0, 0, APPLICATION_WIDTH, APPLICATION_HEIGHT);
 	}
 	
 	tick() {
+		
+		if(this.transitionScene != this.sceneNumber) {
+			if(this.transitionAlpha < 1) {
+				this.transitionAlpha += 0.05;
+			} else {
+				this.switchScene();
+			}
+			return;
+		}
+		if(this.transitionAlpha > 0) {
+			this.transitionAlpha -= 0.05;
+		}
+		
+	
+		if(this.spriteMap["text"]) {
+				if(this.textProgress < this.currentInteraction.textHeight) {
+					this.textProgress += 0.03;
+					let graphics = this.spriteMap["mask"];//this.spriteMap["text"].mask;
+					graphics.beginFill(0xffffff);
+					for(let i = 0; i < this.textProgress; i++) {
+						let width = 0;
+						if(this.textProgress >= i + 1)
+							width = GRID_SIZE * (SCREEN_GRID_WIDTH - 1);
+						else
+							width = GRID_SIZE * (SCREEN_GRID_WIDTH - 1) * (this.textProgress % 1);
+						graphics.drawRect(GRID_SIZE/2, GRID_SIZE / 2 + i * FONT_HEIGHT, width, FONT_HEIGHT);
+					}
+				}
+		}	
 		if(getKey("Enter").press) {
 			if(this.spriteMap["text"]) {
 				this.removeChild(this.spriteMap["text"]);
+				this.removeChild(this.spriteMap["text-background"]);
+				//this.removeChild(this.spriteMap["mask"]);
 				this.spriteMap["text"] = null;
 			} else {
 				let dX = 0;
 				let dY = 0;
-				if(this.player.currentDirection == EAST) {
-					dX = 1;
-					dY = 0;
-				} else if(this.player.currentDirection == NORTH) { dX = 0; dY = 1; }
-				else if(this.player.currentDirection == SOUTH) { dX = 0; dY = -1; }
+				if(this.player.currentDirection == EAST) { dX = 1; dY = 0;} 
+				else if(this.player.currentDirection == NORTH) { dX = 0; dY = -1; }
+				else if(this.player.currentDirection == SOUTH) { dX = 0; dY = 1; }
 				else if(this.player.currentDirection == WEST) { dX = -1; dY = 0; }
 				
 				const x = this.player.x + dX;
 				const y = this.player.y + dY;
-				for(let interaction of this.currentScene.interactions) {
-					if(!(x >= interaction.x && x <= interaction.x + interaction.width))
+				for(let interaction of this.currentScene.game.interactions) {
+					if(!(x >= interaction.x && x < interaction.x + interaction.width))
 						continue;
-					if(!(y >= interaction.y && y <= interaction.y + interaction.height))
+					if(!(y >= interaction.y && y < interaction.y + interaction.height))
 						continue;
+					if(interaction.action) {
+						interaction.action();
+						continue;
+					}
 					var text = new PIXI.Text(interaction.text, style);
 					
-					text.x = 100;
-					text.y = 100;
-					this.addChild(text);
+					text.x = GRID_SIZE/2;
+					text.y = GRID_SIZE/2;
+					this.spriteMap["mask"] = new PIXI.Graphics();
+					this.spriteMap["text-background"] = new PIXI.Graphics();
+					this.spriteMap["text-background"].alpha = 0.5;
+					this.spriteMap["text-background"].beginFill(0x333344);
+					this.spriteMap["text-background"].drawRect(GRID_SIZE / 4, GRID_SIZE/4, APPLICATION_WIDTH - GRID_SIZE / 2, FONT_HEIGHT * interaction.textHeight + GRID_SIZE / 2);
+					text.mask = this.spriteMap["mask"];
+					//this.addChild(this.spriteMap["mask"]);
+					this.textProgress = 0;
+					this.currentInteraction = interaction;
 					this.spriteMap["text"] = text;
 					this.textLife = 0;
+					
+					this.addChild(this.spriteMap["text-background"]);
+					this.addChild(this.spriteMap["text"]);
 				}
 			}
 		}
-		if(!this.spriteMap["text"]) {
+		if(!this.spriteMap["text"] && this.currentScene.game.player.enabled) {
 			this.player.tick();
 		}
-		this.spriteMap["player"].texture = this.player.textures[this.player.currentDirection.id];
+		this.spriteMap["player"].texture = textures["fox-" + this.player.currentDirection.name + "-1"];
 		this.spriteMap["player"].x = (this.player.x + this.player.offsetX) * GRID_SIZE;
 		this.spriteMap["player"].y = (this.player.y + this.player.offsetY) * GRID_SIZE;
 	}
@@ -350,26 +435,25 @@ function finishUpdateKeyboard() {
 	}
 }
 
-let app;
-
 function main() {
   
   GRID_SIZE = Math.min(document.body.clientWidth / SCREEN_GRID_WIDTH, document.body.clientHeight / SCREEN_GRID_HEIGHT);
+  FONT_HEIGHT = GRID_SIZE / 3
   
   APPLICATION_WIDTH = GRID_SIZE * SCREEN_GRID_WIDTH;
   APPLICATION_HEIGHT = GRID_SIZE * SCREEN_GRID_HEIGHT;
   
   style = new PIXI.TextStyle({
     fontFamily: 'Arial',
-    fontSize: 36,
-    fontStyle: 'italic',
+    fontSize: FONT_HEIGHT,
+    fontStyle: 'normal',
     fontWeight: 'bold',
     fill: '#ffffff',
-    stroke: '#4a1850',
-    strokeThickness: 5,
+    stroke: '#000000',
+    strokeThickness: 0,
     dropShadow: false,
     wordWrap: true,
-    wordWrapWidth: APPLICATION_WIDTH / 2,
+    wordWrapWidth: GRID_SIZE * (SCREEN_GRID_WIDTH - 1),
     lineJoin: 'round',
 	});
 
@@ -378,18 +462,17 @@ function main() {
 
   document.body.appendChild(app.view);
   
-  
   sceneManager = new SceneManager();
-  sceneManager.switchScene(0);
+  sceneManager.gotoScene(0);
   
 	app.stage.addChild(sceneManager);
 	
 	// DEBUG
-	var text = new PIXI.Text("(Press Enter on the tree on your right for interaction example)", style);
+	//var text = new PIXI.Text("(Press Enter on the tree on your right for interaction example)", style);
 	
-	text.x = APPLICATION_WIDTH  * 1/4.0;
-	text.y = APPLICATION_HEIGHT * 7/8.0;
-	app.stage.addChild(text);
+	//text.x = GRID_SIZE / 2;
+	//text.y = APPLICATION_HEIGHT - FONT_HEIGHT * 2;
+	//app.stage.addChild(text);
 
 
 	let currentTime = 0;
@@ -415,9 +498,38 @@ function main() {
 	
 }
 
-window.addEventListener('load', main);
+var promiseList = [];
+
+function loadResource(key, url) {
+	promiseList.push(
+		PIXI.Assets.load(url).then((result) => {
+			textures[key] = result;
+		})
+	);
+}
+
+async function start() {
+	for(var i = 0; i < 3; i++) {
+		for(var j = 0; j < 4; j++) {
+					loadResource(i + j * 3, 'assets/grass/image'+(i+1)+'x'+(j+1)+'.png');
+		}
+	}
+	loadResource("tree", "assets/tree.png");
+	loadResource("fox-back-1", "assets/fox-back-a0.png");
+	loadResource("fox-side-1-1", "assets/fox-side-a0.png");
+	loadResource("fox-side-2-1", "assets/fox-side-2-a0.png");
+	loadResource("fox-front-1", "assets/fox-front-a0.png");
+	loadResource("fox-sit-1", "assets/fox-sit.png");
+	
+	loadResource("title", "assets/title.png");
+  await Promise.all(promiseList);
+	main();
+}
+
+window.addEventListener('load', start);
 
 window.addEventListener('keydown', (e) => {
+	console.log(e.key);
 	pressKeyboardArr.push(e.key);
 });
 
@@ -440,27 +552,5 @@ window.addEventListener('resize', (e) => {
   
 });
 */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
