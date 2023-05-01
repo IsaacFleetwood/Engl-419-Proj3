@@ -39,8 +39,8 @@ const getKey = (key) => {
 }
 
 const GAME_SPEED = 60;
-const SCREEN_GRID_WIDTH = 77;
-const SCREEN_GRID_HEIGHT = 55;
+const SCREEN_GRID_WIDTH = 9;
+const SCREEN_GRID_HEIGHT = 7;
 let GRID_SIZE;
 
 let sceneManager;
@@ -359,7 +359,7 @@ class SceneManager extends PIXI.Container {
 	  	}
 	  }, {
 	  	onLoad: () => {
-	  		this.drawText("You made it out of the burning forest alive, but what comes next?\nThe question still lurks in the back of your mind, what happened to your home and what caused the fire to start in the first place?..\n To Be Continued..", 7, () => {
+	  		this.drawText("You made it out of the burning forest alive, but what comes next?\nThe question still lurks in the back of your mind, what happened to your home and what caused the fire to start in the first place?..\n To Be Continued..", 8, () => {
 	  			if(this.text.progress != this.text.text.length) {
 	  				this.text.progress = this.text.text.length - 1;
 	  			} else {
