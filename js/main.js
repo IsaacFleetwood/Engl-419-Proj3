@@ -39,8 +39,8 @@ const getKey = (key) => {
 }
 
 const GAME_SPEED = 60;
-const SCREEN_GRID_WIDTH = 9;
-const SCREEN_GRID_HEIGHT = 7;
+const SCREEN_GRID_WIDTH = 77;
+const SCREEN_GRID_HEIGHT = 55;
 let GRID_SIZE;
 
 let sceneManager;
@@ -177,7 +177,7 @@ class SceneManager extends PIXI.Container {
 	  	],
 	  }, {
 	  	onLoad: () => {
-	  		this.drawText("Controls:\nUse WASD or the arrow keys\nto move around.\nPress Enter while facing objects\nto interact with them and to exit dialogue.\n\nPress Enter to continue.", 7, () => {
+	  		this.drawText("Controls:\nUse WASD or the arrow keys\nto move around.\nPress Enter while facing objects\nto interact with them and to exit dialogue.\n\nPress Enter to continue.", 8, () => {
 	  			if(this.text.progress != this.text.text.length) {
 	  				this.text.progress = this.text.text.length - 1;
 	  			} else {
@@ -719,7 +719,7 @@ function finishUpdateKeyboard() {
 function main() {
   
   GRID_SIZE = Math.min(document.body.clientWidth / SCREEN_GRID_WIDTH, document.body.clientHeight / SCREEN_GRID_HEIGHT);
-  FONT_HEIGHT = GRID_SIZE * 0.3
+  FONT_HEIGHT = GRID_SIZE * 0.25
   
   APPLICATION_WIDTH = GRID_SIZE * SCREEN_GRID_WIDTH;
   APPLICATION_HEIGHT = GRID_SIZE * SCREEN_GRID_HEIGHT;
